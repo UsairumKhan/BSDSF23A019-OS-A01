@@ -1,28 +1,45 @@
+# Simple Makefile for Both Libraries
 CC = gcc
-CFLAGS = -Wall -Iinclude
+CFLAGS = -Wall
 
-LIB = lib/libmyutils.a
-OBJS = obj/mystrfunctions.o obj/myfilefunctions.o
-MAIN = obj/main.o
-TARGET = bin/client_static
+all: bin/client_static bin/client_dynamic
 
-all: $(TARGET)
+# Static library
+lib/libmyutils.a: src/mystrfunctions.c src/myfilefunctions.c
+	mkdir -p lib
+	$(CC) $(CFLAGS) -Iinclude -c src/mystrfunctions.c -o mystrfunctions.o
+	$(CC) $(CFLAGS) -Iinclude -c src/myfilefunctions.c -o myfilefunctions.o
+	ar rcs lib/libmyutils.a mystrfunctions.o myfilefunctions.o
+	rm mystrfunctions.o myfilefunctions.o
 
-# Rule for final program
-$(TARGET): $(MAIN) $(LIB)
-	$(CC) $(CFLAGS) -o $@ $(MAIN) -Llib -lmyutils
+# Static executable
+bin/client_static: src/main.c lib/libmyutils.a
+	mkdir -p bin
+	$(CC) $(CFLAGS) -Iinclude -Llib -o $@ src/main.c -lmyutils
 
-# Rule for static library
-$(LIB): $(OBJS)
-	ar rcs $@ $^
+# Dynamic library
+lib/libmyutils.so: src/mystrfunctions.c src/myfilefunctions.c
+	mkdir -p lib
+	$(CC) $(CFLAGS) -fPIC -shared -Iinclude -o $@ src/mystrfunctions.c src/myfilefunctions.c
 
-# Compile source files into object files
-obj/%.o: src/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
-run: $(TARGET)
-	./$(TARGET)
+# Dynamic executable
+bin/client_dynamic: src/main.c lib/libmyutils.so
+	mkdir -p bin
+	$(CC) $(CFLAGS) -Iinclude -Llib -o $@ src/main.c -lmyutils
 
 clean:
-	rm -f obj/*.o $(TARGET) $(LIB)
+	rm -rf bin lib
 
+test:
+	@echo "=== Testing Static ==="
+	./bin/client_static
+	@echo ""
+	@echo "=== Testing Dynamic ==="
+	export LD_LIBRARY_PATH=lib:$$LD_LIBRARY_PATH && ./bin/client_dynamic
+
+.PHONY: all clean test
+install:
+	sudo cp bin/client_dynamic /usr/local/bin/client
+	sudo mkdir -p /usr/local/share/man/man1
+	sudo cp man/man1/client.1 /usr/local/share/man/man1/
+	echo "Installation complete!"

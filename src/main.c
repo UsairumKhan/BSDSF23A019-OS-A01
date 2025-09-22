@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>              // <-- Add this for malloc/free
 #include "../include/mystrfunctions.h"
 #include "../include/myfilefunctions.h"
 
@@ -18,6 +19,7 @@ int main() {
     mystrcat(s1, " World");
     printf("mystrcat: %s\n", s1);
 
+    // --- Testing File Functions ---
     printf("\n--- Testing File Functions ---\n");
     FILE* fp = fopen("test.txt", "r");
     if (!fp) {
@@ -35,7 +37,7 @@ int main() {
         printf("Matching lines:\n");
         for (int i = 0; i < count; i++) {
             printf("%s", matches[i]);
-            free(matches[i]);
+            free(matches[i]);   // <-- now compiler knows free()
         }
         free(matches);
     }
@@ -43,3 +45,4 @@ int main() {
     fclose(fp);
     return 0;
 }
+
