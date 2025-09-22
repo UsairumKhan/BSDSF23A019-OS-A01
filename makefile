@@ -38,3 +38,8 @@ test:
 	export LD_LIBRARY_PATH=lib:$$LD_LIBRARY_PATH && ./bin/client_dynamic
 
 .PHONY: all clean test
+install:
+	sudo cp bin/client_dynamic /usr/local/bin/client
+	sudo mkdir -p /usr/local/share/man/man1
+	sudo cp man/man1/client.1 /usr/local/share/man/man1/
+	echo "Installation complete!"

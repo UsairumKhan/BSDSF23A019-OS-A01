@@ -1,0 +1,17 @@
+.TH MYGREP 3 "September 2024" "v0.4.1" "MyUtils Library"
+.SH NAME
+mygrep \- search for pattern in file
+.SH SYNOPSIS
+.B #include <myfilefunctions.h>
+.PP
+.BI "int mygrep(FILE *" fp ", const char *" search_str ", char ***" matches );
+.SH DESCRIPTION
+The
+.B mygrep()
+function searches for lines containing
+.I search_str
+in a file and returns matching lines.
+.SH RETURN VALUE
+Returns count of matches on success, -1 on failure.
+.SH AUTHOR
+Your Name <your.roll@example.com>
